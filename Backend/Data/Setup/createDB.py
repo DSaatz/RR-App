@@ -30,6 +30,7 @@ cur.execute('''
             reviewDate DATE NOT NULL,
             score NUMERIC NOT NULL,
             review TEXT,
+            images TEXT,
             FOREIGN KEY (userID) REFERENCES users(userID)
         );
 ''')
