@@ -1,9 +1,10 @@
 import sys
+import json
 sys.path.append('../')
 
 from Backend.Data.Helpers import connector
 
-def getReviews(name):
+def getReviews(restaurant_name):
     conn = connector.create_connection()
     if conn is None:
         return None
@@ -12,8 +13,8 @@ def getReviews(name):
         cur = conn.cursor()
         
         cur.execute('''
-            SELECT * FROM reviews WHERE restaurantName = %s
-        ''', (name,))
+            SELECT * FROM reviews WHERE restaurantname = %s
+        ''', (restaurant_name,))
         
         result = cur.fetchall()
         
@@ -21,18 +22,22 @@ def getReviews(name):
         reviews = []
         for row in result:
             reviews.append({
-                "restaurantName": row[0],
-                "userName": row[1],
-                "ambient": row[2],
-                "service": row[3],
-                "taste": row[4],
-                "plating": row[5],
-                "location": row[6],
-                "priceToValue": row[7],
-                "reviewText": row[8]
+                "reviewID": row[0],
+                "userID": row[1],  # Adjusted to userID
+                "restaurantName": row[2],
+                "ambient": row[3],
+                "service": row[4],
+                "taste": row[5],
+                "plating": row[6],
+                "location": row[7],
+                "priceToValue": row[8],
+                "reviewDate": str(row[9]),  # Convert date to string
+                "score": float(row[10]),  # Convert Decimal to float
+                "reviewText": row[11],
+                "images": row[12]  # Add images if present
             })
         
-        return reviews
+        return json.dumps(reviews)  # Convert to JSON string
     
     except Exception as e:
         print(f"Error getting reviews for restaurant: {e}")
