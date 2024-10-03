@@ -7,7 +7,7 @@ def createRestaurant(
     restaurantName,
     avg_rating,
     review_amount,
-    pictures=None #Later change to imgur url for restaurant which should be generated
+    images=None #Later change to imgur url for restaurant which should be generated
 ):
     conn = connector.create_connection()
     if conn is None:
@@ -21,7 +21,7 @@ def createRestaurant(
                 restaurantName, avg_rating, review_amount, images
             )
             VALUES (%s, %s, %s, %s)
-        ''', (restaurantName, avg_rating, review_amount, pictures))
+        ''', (restaurantName, avg_rating, review_amount, images))
         
         conn.commit()
         print("Restaurant created successfully.")
