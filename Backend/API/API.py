@@ -13,6 +13,7 @@ from typing import List
 from Backend.Data.Images import addPicturesToRestaurant
 from Backend.Data.Helpers.Readers.getAllRestaurants import getAllRestaurants
 from fastapi.responses import JSONResponse
+from Backend.Data.Helpers.Readers.getReviewsForRestaurant import getReviews
 
 app = FastAPI()
 
@@ -27,9 +28,9 @@ async def register_user(user: UserRegister):
         raise HTTPException(status_code=400, detail="Username or email already registered.")
 
     authSetup.initializeFirebase()
-    register.registerUser(user.email, user.password)
+    register.registerUser(user.email, user.password) #register user in firebase
     
-    operationsDB.insertUser(user.username, user.email)
+    operationsDB.insertUser(user.username, user.email) #put user in postgresql database
 
     return {"message": "User registered successfully."}
 
@@ -95,3 +96,17 @@ async def get_restaurants():
     if restaurants is None:
         return JSONResponse(status_code=500, content={"message": "Error retrieving data"})
     return JSONResponse(content=restaurants)
+
+@app.get("/getRestaurant/{restaurantName}")
+async def get_restaurant(restaurantName: str):
+    restaurant = getAllRestaurants(restaurantName)
+    if restaurant is None:
+        return JSONResponse(status_code=500, content={"message": "Error retrieving data"})
+    return JSONResponse(content=restaurant)
+
+@app.get("/getReviews/{restaurantName}")
+async def get_reviews(restaurantName: str):
+    reviews = getReviews(restaurantName)
+    if reviews is None:
+        return JSONResponse(status_code=500, content={"message": "Error retrieving data"})
+    return JSONResponse(content=reviews)
