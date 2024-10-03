@@ -11,6 +11,8 @@ from Backend.Auth import register
 import os
 from typing import List
 from Backend.Data.Images import addPicturesToRestaurant
+from Backend.Data.Helpers.Readers.getAllRestaurants import getAllRestaurants
+from fastapi.responses import JSONResponse
 
 app = FastAPI()
 
@@ -86,3 +88,10 @@ async def upload_review(
                 os.remove(path)  # Remove temporary image files
             except OSError:
                 pass  # Handle errors if needed
+
+@app.get("/allRestaurants")
+async def get_restaurants():
+    restaurants = getAllRestaurants()
+    if restaurants is None:
+        return JSONResponse(status_code=500, content={"message": "Error retrieving data"})
+    return JSONResponse(content=restaurants)
