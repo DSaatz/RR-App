@@ -41,7 +41,7 @@ cur.execute('''
             avg_rating NUMERIC NOT NULL,
             restaurantName VARCHAR(100) NOT NULL,
             review_amount INT NOT NULL,
-            pictures TEXT);
+            images TEXT);
 ''')
 
 print("Tables Created")

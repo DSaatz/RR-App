@@ -1,5 +1,6 @@
 import sys
 import json
+from decimal import Decimal  # Import Decimal to check the type
 sys.path.append('../')
 
 from Backend.Data.Helpers import connector
@@ -24,8 +25,8 @@ def getAllRestaurants():
         for row in result:
             restaurants.append({
                 "restaurantName": row[0],
-                "avg_rating": row[1],
-                "review_amount": row[2],
+                "avg_rating": float(row[1]) if isinstance(row[1], Decimal) else row[1],  # Convert Decimal to float
+                "review_amount": int(row[2]),  # Ensure review_amount is returned as an integer
                 "images": row[3]
             })
         

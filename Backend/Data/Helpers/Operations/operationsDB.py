@@ -3,39 +3,42 @@ sys.path.append('../')
 
 from Backend.Data.Helpers import connector
 
+#Added explenations since its a bit more complex
 def createRestaurant(
     restaurantName,
     avg_rating,
     review_amount,
-    images=None #Later change to imgur url for restaurant which should be generated
+    images=None  # Later change to imgur url for restaurant which should be generated
 ):
     conn = connector.create_connection()
     if conn is None:
+        print("Failed to establish database connection.")
         return  
     
     try:
         cur = conn.cursor()
-        
+
+        # Insert the restaurant into the database
         cur.execute('''
             INSERT INTO restaurants (
                 restaurantName, avg_rating, review_amount, images
             )
             VALUES (%s, %s, %s, %s)
         ''', (restaurantName, avg_rating, review_amount, images))
-        
+
+        # Commit the changes
         conn.commit()
         print("Restaurant created successfully.")
     
     except Exception as e:
         print(f"Error creating restaurant: {e}")
+        conn.rollback()  # Rollback in case of error
     
     finally:
         cur.close()
         conn.close()
 
-#Added explenations since its a bit more complex
-#Image link in review creation is temporary since it will later be transferred to the restaurants image collection(imgur)
-#TODO implement logic for image collection & updating the restaurant image collection
+
 def createReview(
     userID,
     restaurantName,
@@ -50,6 +53,7 @@ def createReview(
 ):
     conn = connector.create_connection()
     if conn is None:
+        print("Failed to establish database connection.")
         return  
     
     try:
@@ -82,22 +86,13 @@ def createReview(
             # If not, insert the restaurant into the database
             cur.execute('''
                 INSERT INTO restaurants (
-                    restaurantName, avg_rating, review_amount, pictures
+                    restaurantName, avg_rating, review_amount, images
                 )
                 VALUES (%s, %s, %s, %s)
                 RETURNING restaurantID
             ''', (restaurantName, score, 1, images))
             restaurantID = cur.fetchone()[0]
             print(f"Restaurant created successfully with ID: {restaurantID}")
-
-            # After creating a new restaurant, set the initial values for avg_rating and review_amount
-            new_avg_rating = score
-            new_review_amount = 1
-            
-            # Update the restaurant details with the first review
-            cur.execute('''
-                UPDATE restaurants SET avg_rating = %s, review_amount = %s WHERE restaurantID = %s
-            ''', (new_avg_rating, new_review_amount, restaurantID))
 
         # Now create the review associated with the restaurant
         cur.execute('''
@@ -118,11 +113,11 @@ def createReview(
     
     except Exception as e:
         print(f"Error creating review: {e}")
+        conn.rollback()  # Rollback in case of error
     
     finally:
         cur.close()
         conn.close()
-
 
 
 def createUser(
