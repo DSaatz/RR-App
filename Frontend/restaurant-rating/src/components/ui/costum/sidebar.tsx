@@ -3,6 +3,18 @@ import Link from 'next/link'
 import { Home, Star, MapPin, TrendingUp, User, Settings, LogOut } from 'lucide-react'
 import { Card } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
+import { logout } from "@/lib/authHelpers"
+const handleLogout = async () => {
+  try {
+    await logout(); // Call your logout function
+    //logout success message over logut function
+    //TODO implement redirect to login page
+  } catch (error) {
+    console.error("Logout failed:", error);
+    // Handle the error (e.g., show a toast message)
+  }
+};
+
 
 export default function Sidebar() {
   return (
@@ -29,13 +41,15 @@ export default function Sidebar() {
         </ul>
       </nav>
       <div className="p-4 border-t border-gray-200">
-        <Button
+      <Button
           variant="ghost"
           className="w-full justify-start text-red-600 hover:text-red-700 hover:bg-red-50"
+          onClick={handleLogout} // Add the onClick handler
         >
-          <LogOut size={20} className="mr-2" />
+        <LogOut size={20} className="mr-2" />
           Log out
-        </Button>
+      </Button>
+
       </div>
     </Card>
   )

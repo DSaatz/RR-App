@@ -17,6 +17,7 @@ export default function AuthTabs() {
   const [showPassword, setShowPassword] = useState(false)
   const [loginError, setLoginError] = useState<string | null>(null)
   const [user, setUser] = useState<User | null>(null)  // Track logged-in user
+  const [passwordMatch, setPasswordMatch] = useState(true)
 
   const togglePasswordVisibility = () => setShowPassword(!showPassword)
 
@@ -35,6 +36,9 @@ export default function AuthTabs() {
       console.error("Login failed:", error)
       setLoginError("Invalid username or password")
     }
+  }
+
+  const handlePasswordChange = (e: React.ChangeEvent<HTMLInputElement>) => {
   }
 
   // Track who is logged in (runs on client-side only)
@@ -105,7 +109,51 @@ export default function AuthTabs() {
             <CardDescription>Create a new account to get started.</CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
-            <p>Registration will be handled later.</p>
+            <div className="space-y-2">
+              <Label htmlFor="register-username">Username</Label>
+              <Input id="register-username" placeholder="Choose a username" className="transition-all hover:border-green-500 focus:border-green-500 focus:ring-green-500" />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="register-email">Email</Label>
+              <Input id="register-email" type="email" placeholder="Enter your email" className="transition-all hover:border-green-500 focus:border-green-500 focus:ring-green-500" />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="register-password">Password</Label>
+              <div className="relative">
+                <Input
+                  id="register-password"
+                  name="password"
+                  type={showPassword ? "text" : "password"}
+                  placeholder="Choose a password"
+                  className="pr-10 transition-all hover:border-green-500 focus:border-green-500 focus:ring-green-500"
+                  onChange={handlePasswordChange}
+                />
+                <button
+                  type="button"
+                  onClick={togglePasswordVisibility}
+                  className="absolute inset-y-0 right-0 flex items-center pr-3 text-gray-400 hover:text-green-500"
+                >
+                  {showPassword ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
+                </button>
+              </div>
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="register-repeat-password">Repeat Password</Label>
+              <Input
+                id="register-repeat-password"
+                name="repeatPassword"
+                type={showPassword ? "text" : "password"}
+                placeholder="Repeat your password"
+                className={`transition-all hover:border-green-500 focus:border-green-500 focus:ring-green-500 ${
+                  !passwordMatch ? "border-red-500" : ""
+                }`}
+                onChange={handlePasswordChange}
+              />
+              {!passwordMatch && (
+                <p className="text-sm text-red-500">Passwords do not match</p>
+              )}
+            </div>
+            <Button type="submit" className="w-full bg-green-500 hover:bg-green-600 transition-colors">Register</Button>
           </CardContent>
         </Card>
       </TabsContent>
