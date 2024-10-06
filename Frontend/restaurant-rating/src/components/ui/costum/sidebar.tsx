@@ -20,7 +20,7 @@ export default function Sidebar() {
       </div>
       <nav className="flex-1 overflow-y-auto">
         <ul className="p-2 space-y-2">
-          <SidebarItem href="/" icon={<Home size={20} />}>Home</SidebarItem>
+          <SidebarItem href="/home" icon={<Home size={20} />}>Home</SidebarItem>
           <SidebarItem href="/add-rating" icon={<Star size={20} />}>Add Rating</SidebarItem>
           <SidebarItem href="/near-you" icon={<MapPin size={20} />}>Near You</SidebarItem>
           <SidebarItem href="/trending" icon={<TrendingUp size={20} />}>Trending</SidebarItem>
