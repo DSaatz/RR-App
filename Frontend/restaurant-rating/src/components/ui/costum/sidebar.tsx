@@ -22,8 +22,8 @@ export default function Sidebar() {
         <ul className="p-2 space-y-2">
           <SidebarItem href="/home" icon={<Home size={20} />}>Home</SidebarItem>
           <SidebarItem href="/add-rating" icon={<Star size={20} />}>Add Rating</SidebarItem>
-          <SidebarItem href="/near-you" icon={<MapPin size={20} />}>Near You</SidebarItem>
-          <SidebarItem href="/trending" icon={<TrendingUp size={20} />}>Trending</SidebarItem>
+          <SidebarItem href="/category/near-you" icon={<MapPin size={20} />}>Near You</SidebarItem>
+          <SidebarItem href="/category/trending" icon={<TrendingUp size={20} />}>Trending</SidebarItem>
           <SidebarItem href="/account" icon={<User size={20} />}>Account</SidebarItem>
           <SidebarItem href="/settings" icon={<Settings size={20} />}>Settings</SidebarItem>
         </ul>
