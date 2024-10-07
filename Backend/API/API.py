@@ -15,6 +15,9 @@ from Backend.Data.Images import addPicturesToRestaurant
 from Backend.Data.Helpers.Readers.getAllRestaurants import getAllRestaurants
 from Backend.Data.Helpers.Readers.getReviewsForRestaurant import getReviews
 from Backend.Data.Helpers.Readers.getRestaurant import getRestaurantByName 
+from dotenv import load_dotenv
+
+load_dotenv()
 
 # Configure logging
 logging.basicConfig(
@@ -24,6 +27,14 @@ logging.basicConfig(
 logger = logging.getLogger(__name__)
 
 app = FastAPI()
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=[os.getenv("FRONTEND_URL")],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 class UserRegister(BaseModel):
     username: str
@@ -64,7 +75,7 @@ async def register_user(user: UserRegister):
         logger.error(f"Error registering user: {str(e)}")
         raise HTTPException(status_code=500, detail=f"Error registering user: {str(e)}")
 
-#TODO add uploading images functionallity (maybe per seperate function)
+#TODO add uploading images functionallity (maybe per seperate function NOT FOR NOW!)
 @app.post("/uploadReview")
 async def upload_review(review_data: ReviewData):
     logger.info(f"Uploading review for user: {review_data.userName} to restaurant: {review_data.restaurantName}")

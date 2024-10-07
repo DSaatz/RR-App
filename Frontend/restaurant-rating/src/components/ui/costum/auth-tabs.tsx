@@ -8,22 +8,25 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 
-// Import Firebase auth helpers
+// Import Firebase auth helpers for login
 import { login } from "@/lib/authHelpers"
-import { auth } from "@/lib/firebase"  // Firebase Auth instance from your setup file
-import { onAuthStateChanged, User } from "firebase/auth"  // Firebase listener
+import { auth } from "@/lib/firebase"  
+import { onAuthStateChanged, User } from "firebase/auth"
+
+// Import the registerUser function from your existing apiHelpers
+import { registerUser } from "@/lib/APIHelpers"
 
 export default function AuthTabs() {
   const [showPassword, setShowPassword] = useState(false)
   const [loginError, setLoginError] = useState<string | null>(null)
-  const [user, setUser] = useState<User | null>(null)  // Track logged-in user
+  const [user, setUser] = useState<User | null>(null)
   const [passwordMatch, setPasswordMatch] = useState(true)
 
   const togglePasswordVisibility = () => setShowPassword(!showPassword)
 
   // Login form handler
   const handleLoginSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault() // Prevent page reload
+    e.preventDefault()
 
     const email = e.currentTarget.loginEmail.value
     const password = e.currentTarget.loginPassword.value
@@ -39,19 +42,59 @@ export default function AuthTabs() {
   }
 
   const handlePasswordChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const password = e.currentTarget.value
+    const repeatPassword = e.currentTarget.form?.['register-repeat-password'].value
+
+    // Compare passwords
+    if (e.currentTarget.form?.['register-password'] && repeatPassword && password !== repeatPassword) {
+      setPasswordMatch(false)
+    } else {
+      setPasswordMatch(true)
+    }
   }
+
+  // Register form handler
+  const handleRegisterSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+  
+    const username = e.currentTarget["register-username"].value;
+    const email = e.currentTarget["register-email"].value;
+    const password = e.currentTarget["register-password"].value;
+    const repeatPassword = e.currentTarget["register-repeat-password"].value;
+  
+    if (password !== repeatPassword) {
+      setPasswordMatch(false);
+      return;
+    }
+  
+    setPasswordMatch(true);
+  
+    try {
+      await registerUser(username, email, password);
+      console.log("Registration successful");
+      setLoginError(null);
+    } catch (error) {
+      if (error instanceof Error) {
+        console.error("Registeration failed:", error.message);  // Accessing error.message
+        setLoginError(error.message); //Eventually set the right error message i.e. "User already exists" etc.
+      } else {
+        console.error("Unexpected error:", error);
+        setLoginError("An unknown error occurred");
+      }
+    }
+  };
+  
 
   // Track who is logged in (runs on client-side only)
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (user) => {
       if (user) {
-        setUser(user)  // Set the user if logged in
+        setUser(user)
       } else {
-        setUser(null)  // User is logged out
+        setUser(null)
       }
     })
 
-    // Cleanup subscription on unmount
     return () => unsubscribe()
   }, [])
 
@@ -61,7 +104,7 @@ export default function AuthTabs() {
         <TabsTrigger value="login" className="data-[state=active]:bg-green-500 data-[state=active]:text-white">Login</TabsTrigger>
         <TabsTrigger value="register" className="data-[state=active]:bg-green-500 data-[state=active]:text-white">Register</TabsTrigger>
       </TabsList>
-      
+
       {/* Login Tab */}
       <TabsContent value="login">
         <Card>
@@ -101,7 +144,7 @@ export default function AuthTabs() {
         </Card>
       </TabsContent>
 
-      {/* Register Tab (untouched for now) */}
+      {/* Register Tab */}
       <TabsContent value="register">
         <Card>
           <CardHeader>
@@ -109,51 +152,56 @@ export default function AuthTabs() {
             <CardDescription>Create a new account to get started.</CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
-            <div className="space-y-2">
-              <Label htmlFor="register-username">Username</Label>
-              <Input id="register-username" placeholder="Choose a username" className="transition-all hover:border-green-500 focus:border-green-500 focus:ring-green-500" />
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="register-email">Email</Label>
-              <Input id="register-email" type="email" placeholder="Enter your email" className="transition-all hover:border-green-500 focus:border-green-500 focus:ring-green-500" />
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="register-password">Password</Label>
-              <div className="relative">
-                <Input
-                  id="register-password"
-                  name="password"
-                  type={showPassword ? "text" : "password"}
-                  placeholder="Choose a password"
-                  className="pr-10 transition-all hover:border-green-500 focus:border-green-500 focus:ring-green-500"
-                  onChange={handlePasswordChange}
-                />
-                <button
-                  type="button"
-                  onClick={togglePasswordVisibility}
-                  className="absolute inset-y-0 right-0 flex items-center pr-3 text-gray-400 hover:text-green-500"
-                >
-                  {showPassword ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
-                </button>
+            <form onSubmit={handleRegisterSubmit} className="space-y-4">
+              <div className="space-y-2">
+                <Label htmlFor="register-username">Username</Label>
+                <Input id="register-username" placeholder="Choose a username" className="transition-all hover:border-green-500 focus:border-green-500 focus:ring-green-500" required />
               </div>
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="register-repeat-password">Repeat Password</Label>
-              <Input
-                id="register-repeat-password"
-                name="repeatPassword"
-                type={showPassword ? "text" : "password"}
-                placeholder="Repeat your password"
-                className={`transition-all hover:border-green-500 focus:border-green-500 focus:ring-green-500 ${
-                  !passwordMatch ? "border-red-500" : ""
-                }`}
-                onChange={handlePasswordChange}
-              />
-              {!passwordMatch && (
-                <p className="text-sm text-red-500">Passwords do not match</p>
-              )}
-            </div>
-            <Button type="submit" className="w-full bg-green-500 hover:bg-green-600 transition-colors">Register</Button>
+              <div className="space-y-2">
+                <Label htmlFor="register-email">Email</Label>
+                <Input id="register-email" type="email" placeholder="Enter your email" className="transition-all hover:border-green-500 focus:border-green-500 focus:ring-green-500" required />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="register-password">Password</Label>
+                <div className="relative">
+                  <Input
+                    id="register-password"
+                    name="password"
+                    type={showPassword ? "text" : "password"}
+                    placeholder="Choose a password"
+                    className="pr-10 transition-all hover:border-green-500 focus:border-green-500 focus:ring-green-500"
+                    onChange={handlePasswordChange}
+                    required
+                  />
+                  <button
+                    type="button"
+                    onClick={togglePasswordVisibility}
+                    className="absolute inset-y-0 right-0 flex items-center pr-3 text-gray-400 hover:text-green-500"
+                  >
+                    {showPassword ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
+                  </button>
+                </div>
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="register-repeat-password">Repeat Password</Label>
+                <Input
+                  id="register-repeat-password"
+                  name="repeatPassword"
+                  type={showPassword ? "text" : "password"}
+                  placeholder="Repeat your password"
+                  className={`transition-all hover:border-green-500 focus:border-green-500 focus:ring-green-500 ${
+                    !passwordMatch ? "border-red-500" : ""
+                  }`}
+                  onChange={handlePasswordChange}
+                  required
+                />
+                {!passwordMatch && (
+                  <p className="text-sm text-red-500">Passwords do not match</p>
+                )}
+              </div>
+              {loginError && <p className="text-sm text-red-500">{loginError}</p>}
+              <Button type="submit" className="w-full bg-green-500 hover:bg-green-600 transition-colors">Register</Button>
+            </form>
           </CardContent>
         </Card>
       </TabsContent>
