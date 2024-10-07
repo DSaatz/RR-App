@@ -1,4 +1,4 @@
-"use client"
+'use client'
 
 import { useState } from "react"
 import { Star } from "lucide-react"
@@ -6,6 +6,11 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
 import { Button } from "@/components/ui/button"
+import { Input } from "@/components/ui/input"
+import { Review } from "@/models/Review"
+import { uploadReview } from "@/lib/APIHelpers"
+import { toast } from "@/hooks/use-toast"
+import { getCurrentUser } from "@/lib/userHelpers"
 
 const categories = [
   { name: "Ambience", key: "ambient" },
@@ -18,9 +23,72 @@ const categories = [
 
 export default function ReviewForm() {
   const [ratings, setRatings] = useState<Record<string, number>>({})
+  const [restaurantName, setRestaurantName] = useState("")
+  const [reviewText, setReviewText] = useState("")
+  const [isSubmitting, setIsSubmitting] = useState(false)
 
   const handleRatingChange = (category: string, rating: number) => {
     setRatings((prev) => ({ ...prev, [category]: rating }))
+  }
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault()
+    
+    const currentUser = await getCurrentUser();
+    console.log('Current User:', currentUser);
+    if (!currentUser) {
+      toast({
+        title: "Error",
+        description: "You must be logged in to submit a review.",
+        variant: "destructive",
+      })
+      return;
+    }
+
+    if (!restaurantName || Object.keys(ratings).length !== categories.length) {
+      toast({
+        title: "Error",
+        description: "Please fill in all required fields.",
+        variant: "destructive",
+      })
+      return
+    }
+
+    setIsSubmitting(true)
+
+    const review: Review = {
+      username: currentUser.username|| "",
+      restaurantName,
+      ambienceRating: ratings.ambient,
+      serviceRating: ratings.service,
+      tasteRating: ratings.taste,
+      platingRating: ratings.plating,
+      locationRating: ratings.location,
+      priceToValueRating: ratings.priceToValue,
+      reviewText,
+      images: []
+    }
+
+    try {
+      const response = await uploadReview(review)
+      toast({
+        title: "Success",
+        description: "Your review has been submitted successfully!",
+      })
+      // Reset form
+      setRatings({})
+      setRestaurantName("")
+      setReviewText("")
+    } catch (error) {
+      console.error('Error submitting review:', error);
+      toast({
+        title: "Error",
+        description: error instanceof Error ? error.message : "Failed to submit review. Please try again.",
+        variant: "destructive",
+      })
+    } finally {
+      setIsSubmitting(false)
+    }
   }
 
   return (
@@ -30,31 +98,48 @@ export default function ReviewForm() {
         <CardDescription>Share your thoughts about the restaurant</CardDescription>
       </CardHeader>
       <CardContent className="space-y-6">
-        {categories.map((category) => (
-          <div key={category.key} className="space-y-2">
-            <Label htmlFor={category.key} className="text-sm font-medium text-green-700">
-              {category.name}
+        <form onSubmit={handleSubmit} className="space-y-6">
+          <div className="space-y-2">
+            <Label htmlFor="restaurantName" className="text-sm font-medium text-green-700">
+              Restaurant Name
             </Label>
-            <StarRating
-              id={category.key}
-              rating={ratings[category.key] || 0}
-              onRatingChange={(rating) => handleRatingChange(category.key, rating)}
+            <Input
+              id="restaurantName"
+              value={restaurantName}
+              onChange={(e) => setRestaurantName(e.target.value)}
+              placeholder="Enter restaurant name"
+              required
+              className="focus:border-green-500 focus:ring-green-500"
             />
           </div>
-        ))}
-        <div className="space-y-2">
-          <Label htmlFor="review" className="text-sm font-medium text-green-700">
-            Your Review (Optional)
-          </Label>
-          <Textarea
-            id="review"
-            placeholder="Share your experience with this restaurant..."
-            className="min-h-[100px] focus:border-green-500 focus:ring-green-500"
-          />
-        </div>
-        <Button type="submit" className="w-full bg-green-600 hover:bg-green-700 text-white">
-          Submit Review
-        </Button>
+          {categories.map((category) => (
+            <div key={category.key} className="space-y-2">
+              <Label htmlFor={category.key} className="text-sm font-medium text-green-700">
+                {category.name}
+              </Label>
+              <StarRating
+                id={category.key}
+                rating={ratings[category.key] || 0}
+                onRatingChange={(rating) => handleRatingChange(category.key, rating)}
+              />
+            </div>
+          ))}
+          <div className="space-y-2">
+            <Label htmlFor="review" className="text-sm font-medium text-green-700">
+              Your Review (Optional)
+            </Label>
+            <Textarea
+              id="review"
+              value={reviewText}
+              onChange={(e) => setReviewText(e.target.value)}
+              placeholder="Share your experience with this restaurant..."
+              className="min-h-[100px] focus:border-green-500 focus:ring-green-500"
+            />
+          </div>
+          <Button type="submit" className="w-full bg-green-600 hover:bg-green-700 text-white" disabled={isSubmitting}>
+            {isSubmitting ? "Submitting..." : "Submit Review"}
+          </Button>
+        </form>
       </CardContent>
     </Card>
   )

@@ -1,6 +1,5 @@
 export interface Review {
-    id: string;
-    userId: string;
+    username: string;
     restaurantName: string;
     ambienceRating: number;
     serviceRating: number;
@@ -8,7 +7,6 @@ export interface Review {
     platingRating: number;
     locationRating: number;
     priceToValueRating: number;
-    reviewDate: Date;
     reviewText: string;
     images: string[];
 }

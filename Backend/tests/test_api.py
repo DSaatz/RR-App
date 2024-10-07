@@ -61,11 +61,21 @@ def test_get_reviews():
     print(f"Response content: {response.json()}")
     assert response.status_code == 200
 
+def test_get_user_by_mail():
+    email = "testuser@example.com"
+    url = f"{BASE_URL}/getUserByMail/{email}"
+    response = requests.get(url)
+    print(f"Get User By Mail Response: {response.status_code}")
+    print(f"Response content: {response.json()}")
+    assert response.status_code == 200
+
 if __name__ == "__main__":
     print("Starting API tests...")
-    test_register_user()
-    test_upload_review()
-    test_get_all_restaurants()
-    test_get_specific_restaurant()
-    test_get_reviews()
+    #test_register_user()
+    #test_upload_review()
+    #test_get_all_restaurants()
+    #test_get_specific_restaurant()
+    #test_get_reviews()
+    test_get_user_by_mail()
+
     print("All tests completed!")

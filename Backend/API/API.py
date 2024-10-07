@@ -15,6 +15,7 @@ from Backend.Data.Images import addPicturesToRestaurant
 from Backend.Data.Helpers.Readers.getAllRestaurants import getAllRestaurants
 from Backend.Data.Helpers.Readers.getReviewsForRestaurant import getReviews
 from Backend.Data.Helpers.Readers.getRestaurant import getRestaurantByName 
+from Backend.Data.Helpers.Readers.getUserByMail import getUserByMail
 from dotenv import load_dotenv
 
 load_dotenv()
@@ -134,3 +135,18 @@ async def get_reviews(restaurantName: str):
         return JSONResponse(status_code=500, content={"message": "Error retrieving data"})
     logger.info(f"Successfully retrieved reviews for restaurant: {restaurantName}.")
     return JSONResponse(content=reviews)
+
+from fastapi import HTTPException
+
+@app.get("/getUserByMail/{email}")
+async def get_user_by_mail(email: str):
+    decoded_email = email  # The URL-encoded email is automatically decoded by FastAPI
+    logger.info(f"Fetching user by email: {decoded_email}")
+
+    user = getUserByMail(decoded_email)  # Use the decoded email here
+    if user is None:
+        logger.error(f"User not found for email: {decoded_email}.")
+        raise HTTPException(status_code=404, detail="User not found")
+    
+    logger.info(f"Successfully retrieved user by email: {decoded_email}.")
+    return JSONResponse(content=user)

@@ -1,6 +1,7 @@
 import { User } from "@/models/User";
 import { Restaurant} from "@/models/Restaurant";
 import { Review } from "@/models/Review";
+import { getCurrentUser } from "./userHelpers";
 
 import axios, { AxiosError } from 'axios';
 
@@ -24,4 +25,56 @@ export const registerUser = async (username: string, email: string, password: st
       console.error('Unexpected error:', error);
     }
   }
-}  
+}
+
+export const getUserByMail = async (email: string) => {
+  const url = `${BASE_URL}/getUserByMail/${email}`;
+
+  try {
+    const response = await axios.get(url);
+    return response.data;
+  } catch (error) {
+    if (axios.isAxiosError(error)) {
+      const errorResponse = error.response;
+      if (errorResponse) {
+        console.error('Error response:', errorResponse.data);
+        return errorResponse;
+      }
+    } else {
+      console.error('Unexpected error:', error);
+    }
+  }
+}
+
+export const uploadReview = async (review: Review) => {
+  const url = `${BASE_URL}/uploadReview`;
+  const payload = {
+    "userName": review.username,
+    "restaurantName": review.restaurantName,
+    "ambient": review.ambienceRating,
+    "service": review.serviceRating,
+    "taste": review.tasteRating,
+    "plating": review.platingRating,
+    "location": review.locationRating,
+    "priceToValue": review.priceToValueRating,
+    "reviewText": review.reviewText
+  }
+
+  try {
+    console.log('Sending payload:', JSON.stringify(payload, null, 2));
+    const response = await axios.post(url, payload);
+    console.log('Upload Review Response:', response.status, response.data);
+    return response.data;
+  } catch (error) {
+    if (axios.isAxiosError(error)) {
+      const errorResponse = error.response;
+      if (errorResponse) {
+        console.error('Error response:', errorResponse.status, JSON.stringify(errorResponse.data, null, 2));
+        throw new Error(`Server error: ${JSON.stringify(errorResponse.data.detail || 'Unknown error')}`);
+      }
+    } else {
+      console.error('Unexpected error:', error);
+      throw new Error('An unexpected error occurred');
+    }
+  }
+}
