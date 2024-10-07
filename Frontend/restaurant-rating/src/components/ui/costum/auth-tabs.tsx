@@ -1,6 +1,7 @@
 "use client"
 
 import { useState, useEffect } from "react"
+import { useRouter } from 'next/navigation'
 import { Eye, EyeOff } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
@@ -8,12 +9,10 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 
-// Import Firebase auth helpers for login
 import { login } from "@/lib/authHelpers"
 import { auth } from "@/lib/firebase"  
 import { onAuthStateChanged, User } from "firebase/auth"
 
-// Import the registerUser function from your existing apiHelpers
 import { registerUser } from "@/lib/APIHelpers"
 
 export default function AuthTabs() {
@@ -21,10 +20,10 @@ export default function AuthTabs() {
   const [loginError, setLoginError] = useState<string | null>(null)
   const [user, setUser] = useState<User | null>(null)
   const [passwordMatch, setPasswordMatch] = useState(true)
+  const router = useRouter()
 
   const togglePasswordVisibility = () => setShowPassword(!showPassword)
 
-  // Login form handler
   const handleLoginSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault()
 
@@ -34,7 +33,8 @@ export default function AuthTabs() {
     try {
       await login(email, password)
       console.log("Login successful")
-      setLoginError(null)  // Reset error on success
+      setLoginError(null)
+      router.push('/home')
     } catch (error) {
       console.error("Login failed:", error)
       setLoginError("Invalid username or password")
@@ -45,7 +45,6 @@ export default function AuthTabs() {
     const password = e.currentTarget.value
     const repeatPassword = e.currentTarget.form?.['register-repeat-password'].value
 
-    // Compare passwords
     if (e.currentTarget.form?.['register-password'] && repeatPassword && password !== repeatPassword) {
       setPasswordMatch(false)
     } else {
@@ -53,7 +52,6 @@ export default function AuthTabs() {
     }
   }
 
-  // Register form handler
   const handleRegisterSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
   
@@ -73,30 +71,38 @@ export default function AuthTabs() {
       await registerUser(username, email, password);
       console.log("Registration successful");
       setLoginError(null);
+      // Automatically log in the user after successful registration
+      await login(email, password);
+      router.push('/home')
     } catch (error) {
       if (error instanceof Error) {
-        console.error("Registeration failed:", error.message);  // Accessing error.message
-        setLoginError(error.message); //Eventually set the right error message i.e. "User already exists" etc.
+        console.error("Registration failed:", error.message);
+        setLoginError(error.message);
       } else {
         console.error("Unexpected error:", error);
         setLoginError("An unknown error occurred");
       }
     }
   };
-  
 
-  // Track who is logged in (runs on client-side only)
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (user) => {
       if (user) {
         setUser(user)
+        localStorage.setItem('user', JSON.stringify({
+          uid: user.uid,
+          email: user.email,
+          displayName: user.displayName,
+        }))
+        router.push('/home')
       } else {
         setUser(null)
+        localStorage.removeItem('user')
       }
     })
 
     return () => unsubscribe()
-  }, [])
+  }, [router])
 
   return (
     <Tabs defaultValue="login" className="w-[400px]">
@@ -105,7 +111,6 @@ export default function AuthTabs() {
         <TabsTrigger value="register" className="data-[state=active]:bg-green-500 data-[state=active]:text-white">Register</TabsTrigger>
       </TabsList>
 
-      {/* Login Tab */}
       <TabsContent value="login">
         <Card>
           <CardHeader>
@@ -144,7 +149,6 @@ export default function AuthTabs() {
         </Card>
       </TabsContent>
 
-      {/* Register Tab */}
       <TabsContent value="register">
         <Card>
           <CardHeader>
