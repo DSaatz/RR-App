@@ -73,9 +73,9 @@ if __name__ == "__main__":
     print("Starting API tests...")
     #test_register_user()
     #test_upload_review()
-    #test_get_all_restaurants()
+    test_get_all_restaurants()
     #test_get_specific_restaurant()
     #test_get_reviews()
-    test_get_user_by_mail()
+    #test_get_user_by_mail()
 
     print("All tests completed!")

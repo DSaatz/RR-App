@@ -78,3 +78,24 @@ export const uploadReview = async (review: Review) => {
     }
   }
 }
+
+export const getAllReviews = async () => {
+  const url = `${BASE_URL}/allRestaurants`;
+
+  try {
+    const response = await axios.get(url);
+   // console.log('All Reviews:', response.data);
+    return response.data;
+  } catch (error) {
+    if (axios.isAxiosError(error)) {
+      const errorResponse = error.response;
+      if (errorResponse) {
+        console.error('Error response:', errorResponse.status, JSON.stringify(errorResponse.data, null, 2));
+        throw new Error(`Server error: ${JSON.stringify(errorResponse.data.detail || 'Unknown error')}`);
+      }
+    } else {
+      console.error('Unexpected error:', error);
+      throw new Error('An unexpected error occurred');
+    }
+  }
+}

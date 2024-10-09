@@ -1,28 +1,42 @@
-"use client"
+"use client";
 
-import { useState } from 'react'
-import StandardLayout from '@/components/ui/costum/standard-layout'
-import SearchBar from '@/components/ui/costum/search-bar'
-import RestaurantCard from '@/components/ui/costum/restaurant-card'
-import { Button } from "@/components/ui/button"
-
-const trendingRestaurants = [
-  { id: 1, name: "The Buzz Cafe", rating: 4.8, distance: 1.2 },
-  { id: 2, name: "Flavor Fusion", rating: 4.7, distance: 0.8 },
-  { id: 3, name: "Urban Bites", rating: 4.9, distance: 2.5 },
-  { id: 4, name: "Gourmet Galaxy", rating: 4.6, distance: 1.5 },
-  { id: 5, name: "Spice Symphony", rating: 4.5, distance: 3.0 },
-  { id: 6, name: "The Hungry Hive", rating: 4.7, distance: 2.2 },
-  { id: 7, name: "Culinary Canvas", rating: 4.8, distance: 1.8 },
-  { id: 8, name: "Savory Street", rating: 4.6, distance: 0.9 },
-]
+import { useEffect, useState } from "react";
+import StandardLayout from "@/components/ui/costum/standard-layout";
+import SearchBar from "@/components/ui/costum/search-bar";
+import RestaurantCard from "@/components/ui/costum/restaurant-card";
+import { Button } from "@/components/ui/button";
+import { Restaurant } from "@/models/Restaurant";
+import { getAllReviewsAsRestaurantArray } from "@/lib/reviewHelpers";
 
 export default function TrendingPage() {
-  const [restaurants, setRestaurants] = useState(trendingRestaurants)
+  const [restaurants, setRestaurants] = useState<Restaurant[]>([]); // State to hold restaurant data
+  const [loading, setLoading] = useState(true); // State to handle loading state
+  const dummyDistance = 1.5;
+
+  useEffect(() => {
+    const fetchRestaurants = async () => {
+      try {
+        const restaurantData = await getAllReviewsAsRestaurantArray();
+        setRestaurants(restaurantData); // Set the fetched restaurants
+        console.log("Fetched restaurants:", restaurantData); // Log fetched restaurants
+      } catch (error) {
+        console.error("Error fetching restaurants:", error);
+      } finally {
+        setLoading(false); // Set loading to false after fetching
+      }
+    };
+
+    fetchRestaurants(); // Call the function to fetch restaurants
+  }, []); // Empty dependency array ensures this runs once on mount
 
   const handleSearch = (query: string) => {
     // Implement search logic here
-    console.log("Searching for:", query)
+    console.log("Searching for:", query);
+    // You can add filtering logic based on the query here
+  };
+
+  if (loading) {
+    return <div className="text-center py-8">Loading restaurants...</div>; // Loading state message
   }
 
   return (
@@ -30,14 +44,14 @@ export default function TrendingPage() {
       <div className="container mx-auto py-8">
         <h1 className="text-3xl font-bold text-green-700 mb-6">Trending Restaurants</h1>
         <SearchBar onSearch={handleSearch} placeholder="Search trending restaurants..." />
-        
+
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mt-8">
           {restaurants.map((restaurant) => (
             <RestaurantCard
               key={restaurant.id}
               name={restaurant.name}
-              rating={restaurant.rating}
-              distance={restaurant.distance}
+              rating={restaurant.avgRating} // Use avgRating from Restaurant interface
+              distance= {dummyDistance}
             />
           ))}
         </div>
@@ -49,5 +63,5 @@ export default function TrendingPage() {
         </div>
       </div>
     </StandardLayout>
-  )
+  );
 }
