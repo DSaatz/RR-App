@@ -150,3 +150,9 @@ async def get_user_by_mail(email: str):
     
     logger.info(f"Successfully retrieved user by email: {decoded_email}.")
     return JSONResponse(content=user)
+
+#TODO build API endpoints and helper functions for the following:
+# - Get all reviews for a user
+# - Get restaurants by newest reviews (Newest)
+# - Get restaurants by highest rating (Top Rated)
+# - Get restaurants by most reviews (Trending)
