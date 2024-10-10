@@ -3,13 +3,8 @@ import { ChevronRight } from 'lucide-react'
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import RestaurantCard from './restaurant-card'
+import { Restaurant } from '@/models/Restaurant'
 
-interface Restaurant {
-  id: number
-  name: string
-  rating: number
-  distance: number
-}
 
 interface CategoryContainerProps {
   title: string
@@ -39,8 +34,8 @@ export default function CategoryContainer({ title, restaurants, categorySlug }: 
             <RestaurantCard
               key={restaurant.id}
               name={restaurant.name}
-              rating={restaurant.rating}
-              distance={restaurant.distance}
+              rating={restaurant.avgRating}
+              distance={1.5} //Dummy distance since distance fetching not implemented as of rn
             />
           ))}
         </div>

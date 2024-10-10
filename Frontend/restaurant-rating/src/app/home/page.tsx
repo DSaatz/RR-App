@@ -1,40 +1,51 @@
 'use client'
 
-import StandardLayout from "@/components/ui/costum/standard-layout"
-import SearchBar from "@/components/ui/costum/search-bar"
-import UnderConstructionCard from "@/components/ui/costum/under-construction-card"
-import CategoryContainer from "@/components/ui/costum/category-container"
+import { useState, useEffect } from 'react';
+import StandardLayout from "@/components/ui/costum/standard-layout";
+import SearchBar from "@/components/ui/costum/search-bar";
+import UnderConstructionCard from "@/components/ui/costum/under-construction-card";
+import CategoryContainer from "@/components/ui/costum/category-container";
+import { getReviewsAsRestaurantArray } from '@/lib/reviewHelpers';  // Import your function
+import { Restaurant } from '@/models/Restaurant';
+import { getAllReviews, getAllReviewsNewest, getAllReviewsSortedByTrending } from '@/lib/APIHelpers';
 
-// Sample data for restaurant categories
-const topRatedRestaurants = [
-  { id: 1, name: "Gourmet Delight", rating: 4.8, distance: 1.2 },
-  { id: 2, name: "Pasta Paradise", rating: 4.7, distance: 0.8 },
-  { id: 3, name: "Sushi Sensation", rating: 4.6, distance: 2.5 },
-  { id: 4, name: "Burger Bonanza", rating: 4.5, distance: 1.5 },
-  { id: 5, name: "Veggie Venture", rating: 4.5, distance: 3.0 },
-]
-
-const newestRestaurants = [
-  { id: 6, name: "Fresh Fusion", rating: 4.2, distance: 0.5 },
-  { id: 7, name: "Taco Trends", rating: 4.0, distance: 1.8 },
-  { id: 8, name: "Pizza Pioneers", rating: 4.3, distance: 2.2 },
-  { id: 9, name: "Dessert Dreams", rating: 4.4, distance: 1.0 },
-  { id: 10, name: "Breakfast Bliss", rating: 4.1, distance: 0.7 },
-]
-
-const nearbyRestaurants = [
-  { id: 11, name: "Corner Café", rating: 4.0, distance: 0.3 },
-  { id: 12, name: "Local Bites", rating: 3.9, distance: 0.4 },
-  { id: 13, name: "Quick Eats", rating: 3.8, distance: 0.6 },
-  { id: 14, name: "Neighborhood Nosh", rating: 4.2, distance: 0.8 },
-  { id: 15, name: "Street Treats", rating: 4.1, distance: 1.0 },
-]
 
 export default function HomePage() {
+  const [topRatedRestaurants, setTopRatedRestaurants] = useState<Restaurant[]>([]);
+  const [newestRestaurants, setNewestRestaurants] = useState<Restaurant[]>([]);
+  const [nearbyRestaurants, setNearbyRestaurants] = useState<Restaurant[]>([]);
+
   const handleSearch = (query: string) => {
     // Implement search logic here
-    console.log("Searching for:", query)
-  }
+    console.log("Searching for:", query);
+  };
+
+  // Fetch reviews and categorize them for each section
+  useEffect(() => {
+    // Example fetching for top-rated restaurants
+    async function fetchTopRated() {
+      const restaurants = await getReviewsAsRestaurantArray(getAllReviewsSortedByTrending);  // Use your API function
+      setTopRatedRestaurants(restaurants);  // Update the state with fetched data
+    }
+
+    // Example fetching for newest restaurants
+    async function fetchNewest() {
+      const restaurants = await getReviewsAsRestaurantArray(getAllReviewsNewest);  // Use your API function
+      setNewestRestaurants(restaurants);  // Update the state with fetched data
+    }
+
+    // Example fetching for nearby restaurants
+    //TODO Implement nearby restaurants fetching
+    async function fetchNearby() {
+      const restaurants = await getReviewsAsRestaurantArray(getAllReviews);  // Use your API function
+      setNearbyRestaurants(restaurants);  // Update the state with fetched data
+    }
+
+    // Call the functions to fetch the data
+    fetchTopRated();
+    fetchNewest();
+    fetchNearby();
+  }, []);
 
   return (
     <StandardLayout pageTitle="Discover Great Restaurants">
@@ -65,5 +76,5 @@ export default function HomePage() {
         />
       </div>
     </StandardLayout>
-  )
+  );
 }
