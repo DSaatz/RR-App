@@ -6,7 +6,8 @@ import SearchBar from "@/components/ui/costum/search-bar";
 import RestaurantCard from "@/components/ui/costum/restaurant-card";
 import { Button } from "@/components/ui/button";
 import { Restaurant } from "@/models/Restaurant";
-import { getAllReviewsAsRestaurantArray } from "@/lib/reviewHelpers";
+import { getReviewsAsRestaurantArray } from "@/lib/reviewHelpers";
+import { getAllReviewsSortedByTrending } from "@/lib/APIHelpers";
 
 export default function TrendingPage() {
   const [restaurants, setRestaurants] = useState<Restaurant[]>([]); // State to hold restaurant data
@@ -16,7 +17,7 @@ export default function TrendingPage() {
   useEffect(() => {
     const fetchRestaurants = async () => {
       try {
-        const restaurantData = await getAllReviewsAsRestaurantArray();
+        const restaurantData = await getReviewsAsRestaurantArray(getAllReviewsSortedByTrending);
         setRestaurants(restaurantData); // Set the fetched restaurants
         console.log("Fetched restaurants:", restaurantData); // Log fetched restaurants
       } catch (error) {

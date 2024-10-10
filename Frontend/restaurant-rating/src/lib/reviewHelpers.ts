@@ -1,9 +1,9 @@
-import { getAllReviews } from './APIHelpers';
 import { Restaurant } from '@/models/Restaurant';
 
-export async function getAllReviewsAsRestaurantArray(): Promise<Restaurant[]> {
+// Refactor to accept any querying function
+export async function getReviewsAsRestaurantArray(queryFn: () => Promise<any[]>): Promise<Restaurant[]> {
   try {
-    const reviews = await getAllReviews();
+    const reviews = await queryFn();  // Use the passed function for querying
 
     // Log the type of the fetched reviews
     console.log('Type of fetched reviews:', typeof reviews);
@@ -19,7 +19,7 @@ export async function getAllReviewsAsRestaurantArray(): Promise<Restaurant[]> {
 
     // Check if parsedReviews is an array
     if (!Array.isArray(parsedReviews)) {
-      console.error("getAllReviews did not return an array:", parsedReviews);
+      console.error("Query function did not return an array:", parsedReviews);
       return [];
     }
 
