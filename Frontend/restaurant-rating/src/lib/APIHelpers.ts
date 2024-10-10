@@ -99,3 +99,87 @@ export const getAllReviews = async () => {
     }
   }
 }
+
+export const getAllReviewsSortedByRating = async () => {
+  const url = `${BASE_URL}/allRestaurantsTopRated`;
+
+  try {
+    const response = await axios.get(url);
+    //console.log('All Reviews:', response.data);
+    return response.data;
+  } catch (error) {
+    if (axios.isAxiosError(error)) {
+      const errorResponse = error.response;
+      if (errorResponse) {
+        console.error('Error response:', errorResponse.status, JSON.stringify(errorResponse.data, null, 2));
+        throw new Error(`Server error: ${JSON.stringify(errorResponse.data.detail || 'Unknown error')}`);
+      }
+    } else {
+      console.error('Unexpected error:', error);
+      throw new Error('An unexpected error occurred');
+    }
+  }
+}
+
+export const getAllReviewsSortedByTrending = async () => {
+  const url = `${BASE_URL}/allRestaurantsTrending`;
+
+  try {
+    const response = await axios.get(url);
+    //console.log('All Reviews:', response.data);
+    return response.data;
+  } catch (error) {
+    if (axios.isAxiosError(error)) {
+      const errorResponse = error.response;
+      if (errorResponse) {
+        console.error('Error response:', errorResponse.status, JSON.stringify(errorResponse.data, null, 2));
+        throw new Error(`Server error: ${JSON.stringify(errorResponse.data.detail || 'Unknown error')}`);
+      }
+    } else {
+      console.error('Unexpected error:', error);
+      throw new Error('An unexpected error occurred');
+    }
+  }
+}
+
+export const getAllReviewsNewest = async () => {
+  const url = `${BASE_URL}/allRestaurantsNewest`;
+
+  try {
+    const response = await axios.get(url);
+    //console.log('All Reviews:', response.data);
+    return response.data;
+  } catch (error) {
+    if (axios.isAxiosError(error)) {
+      const errorResponse = error.response;
+      if (errorResponse) {
+        console.error('Error response:', errorResponse.status, JSON.stringify(errorResponse.data, null, 2));
+        throw new Error(`Server error: ${JSON.stringify(errorResponse.data.detail || 'Unknown error')}`);
+      }
+    } else {
+      console.error('Unexpected error:', error);
+      throw new Error('An unexpected error occurred');
+    }
+  }
+}
+
+export const getAllReviewsByUser = async (email: string) => {
+  const url = `${BASE_URL}/getReviewsByUser/${email}`;
+
+  try {
+    const response = await axios.get(url);
+    //console.log('All Reviews:', response.data);
+    return response.data;
+  } catch (error) {
+    if (axios.isAxiosError(error)) {
+      const errorResponse = error.response;
+      if (errorResponse) {
+        console.error('Error response:', errorResponse.status, JSON.stringify(errorResponse.data, null, 2));
+        throw new Error(`Server error: ${JSON.stringify(errorResponse.data.detail || 'Unknown error')}`);
+      }
+    } else {
+      console.error('Unexpected error:', error);
+      throw new Error('An unexpected error occurred');
+    }
+  }
+}
