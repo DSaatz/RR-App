@@ -12,10 +12,11 @@ from Backend.Data.Helpers.Operations import operationsDB
 from Backend.Auth import authSetup
 from Backend.Auth import register
 from Backend.Data.Images import addPicturesToRestaurant
-from Backend.Data.Helpers.Readers.getAllRestaurants import getAllRestaurants
+from Backend.Data.Helpers.Readers.getAllRestaurants import getAllRestaurants, getAllRestaurantSortedByHighestRating, getAllRestaurantSortedByNewest, getAllRestaurantsSortedByMostReviews
 from Backend.Data.Helpers.Readers.getReviewsForRestaurant import getReviews
 from Backend.Data.Helpers.Readers.getRestaurant import getRestaurantByName 
 from Backend.Data.Helpers.Readers.getUserByMail import getUserByMail
+from Backend.Data.Helpers.Readers.getReviewsByUser import getReviewsByUser
 from dotenv import load_dotenv
 
 load_dotenv()
@@ -151,8 +152,44 @@ async def get_user_by_mail(email: str):
     logger.info(f"Successfully retrieved user by email: {decoded_email}.")
     return JSONResponse(content=user)
 
-#TODO build API endpoints and helper functions for the following:
-# - Get all reviews for a user
-# - Get restaurants by newest reviews (Newest)
-# - Get restaurants by highest rating (Top Rated)
-# - Get restaurants by most reviews (Trending)
+
+@app.get("/allRestaurantsTrending")
+async def get_restaurants_trending():
+    logger.info("Fetching all restaurants by most reviews.")
+    restaurants = getAllRestaurantsSortedByMostReviews()
+    if restaurants is None:
+        logger.error("Error retrieving all restaurants.")
+        return JSONResponse(status_code=500, content={"message": "Error retrieving data"})
+    logger.info("Successfully retrieved all restaurants.")
+    return JSONResponse(content=restaurants)
+
+@app.get("/allRestaurantsNewest")
+async def get_restaurants_newest():
+    logger.info("Fetching all restaurants by newest reviews.")
+    restaurants = getAllRestaurantSortedByNewest()
+    if restaurants is None:
+        logger.error("Error retrieving all restaurants.")
+        return JSONResponse(status_code=500, content={"message": "Error retrieving data"})
+    logger.info("Successfully retrieved all restaurants.")
+    return JSONResponse(content=restaurants)
+
+@app.get("/allRestaurantsTopRated")
+async def get_restaurants_top_rated():
+    logger.info("Fetching all restaurants by highest rating.")
+    restaurants = getAllRestaurantSortedByHighestRating()
+    if restaurants is None:
+        logger.error("Error retrieving all restaurants.")
+        return JSONResponse(status_code=500, content={"message": "Error retrieving data"})
+    logger.info("Successfully retrieved all restaurants.")
+    return JSONResponse(content=restaurants)
+
+@app.get("/getReviewsByUser/{email}")
+async def get_reviews_by_user(email: str):
+    decoded_email = email  # The URL-encoded email is automatically decoded by FastAPI
+    logger.info(f"Fetching reviews by user: {decoded_email}")
+    reviews = getReviewsByUser(decoded_email)
+    if reviews is None:
+        logger.error(f"Error retrieving reviews for user: {decoded_email}.")
+        return JSONResponse(status_code=500, content={"message": "Error retrieving data"})
+    logger.info(f"Successfully retrieved reviews for user: {decoded_email}.")
+    return JSONResponse(content=reviews)
