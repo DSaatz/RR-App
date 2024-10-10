@@ -85,7 +85,7 @@ def getAllRestaurantSortedByNewest():
         cur = conn.cursor()
         
         cur.execute('''
-            SELECT restaurantName, avg_rating, review_amount, images FROM restaurants ORDER BY created_at DESC
+            SELECT restaurantName, avg_rating, review_amount, images FROM restaurants ORDER BY restaurantID DESC
         ''')
         
         result = cur.fetchall()
