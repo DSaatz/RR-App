@@ -64,7 +64,7 @@ export default function Sidebar() {
       <div className="p-4 flex flex-col items-center border-b border-gray-200">
         <div className="w-16 h-16 bg-gray-200 rounded-full overflow-hidden mb-2">
           <Image
-            src="/placeholder.svg?height=64&width=64"
+            src="/icon/icon.png?height=64&width=64"
             alt="Logo"
             width={64}
             height={64}
