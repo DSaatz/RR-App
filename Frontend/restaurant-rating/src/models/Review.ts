@@ -1,12 +1,12 @@
 export interface Review {
     username: string;
     restaurantName: string;
-    ambienceRating: number;
-    serviceRating: number;
-    tasteRating: number;
-    platingRating: number;
-    locationRating: number;
-    priceToValueRating: number;
+    ambienceRating: Number;
+    serviceRating: Number;
+    tasteRating: Number;
+    platingRating: Number;
+    locationRating: Number;
+    priceToValueRating: Number;
     reviewText: string;
     images: string[];
 }

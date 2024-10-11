@@ -18,6 +18,7 @@ from Backend.Data.Helpers.Readers.getRestaurant import getRestaurantByName
 from Backend.Data.Helpers.Readers.getUserByMail import getUserByMail
 from Backend.Data.Helpers.Readers.getReviewsByUser import getReviewsByUser
 from dotenv import load_dotenv
+from Backend.Data.Helpers.Readers.getReviewsUsername import getReviewsUsername
 
 load_dotenv()
 
@@ -192,4 +193,14 @@ async def get_reviews_by_user(email: str):
         logger.error(f"Error retrieving reviews for user: {decoded_email}.")
         return JSONResponse(status_code=500, content={"message": "Error retrieving data"})
     logger.info(f"Successfully retrieved reviews for user: {decoded_email}.")
+    return JSONResponse(content=reviews)
+
+@app.get("/getReviewsUsername/{username}")
+async def get_reviews_username(username: str):
+    logger.info(f"Fetching reviews by user: {username}")
+    reviews = getReviewsUsername(username)
+    if reviews is None:
+        logger.error(f"Error retrieving reviews for user: {username}.")
+        return JSONResponse(status_code=500, content={"message": "Error retrieving data"})
+    logger.info(f"Successfully retrieved reviews for user: {username}.")
     return JSONResponse(content=reviews)

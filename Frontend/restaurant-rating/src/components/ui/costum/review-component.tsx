@@ -6,52 +6,67 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader } from "@/components/ui/card"
 
-interface Rating {
-  category: string
-  value: number
+export interface Review {
+    username: string;
+    restaurantName: string;
+    ambienceRating: number;
+    serviceRating: number;
+    tasteRating: number;
+    platingRating: number;
+    locationRating: number;
+    priceToValueRating: number;
+    reviewText: string;
+    images: string[];
 }
 
 interface ReviewProps {
-  username: string
-  avatar: string
-  title: string
-  averageRating: number
-  reviewText: string
-  ratings: Rating[]
+  review: Review
 }
 
-export default function Review({
-  username,
-  avatar,
-  title,
-  averageRating,
-  reviewText,
-  ratings
-}: ReviewProps) {
+export default function Component({ review }: ReviewProps) {
   const [isExpanded, setIsExpanded] = useState(false)
 
   const toggleExpand = () => setIsExpanded(!isExpanded)
+
+  const ratings = [
+    { category: 'Ambience', value: review.ambienceRating },
+    { category: 'Service', value: review.serviceRating },
+    { category: 'Taste', value: review.tasteRating },
+    { category: 'Plating', value: review.platingRating },
+    { category: 'Location', value: review.locationRating },
+    { category: 'Price to Value', value: review.priceToValueRating },
+  ]
+
+  const averageRating = (
+    (review.ambienceRating +
+      review.serviceRating +
+      review.tasteRating +
+      review.platingRating +
+      review.locationRating +
+      review.priceToValueRating) /
+    6
+  ).toFixed(1)
 
   return (
     <Card className="w-full mb-4">
       <CardHeader className="flex flex-row items-center space-x-4 pb-2">
         <Avatar className="w-12 h-12">
-          <AvatarImage src={avatar} alt={username} />
-          <AvatarFallback>{username[0].toUpperCase()}</AvatarFallback>
+          <AvatarImage src="/placeholder.svg" alt={review.username} />
+          <AvatarFallback>{review.username[0].toUpperCase()}</AvatarFallback>
         </Avatar>
         <div className="flex-1">
-          <h3 className="text-lg font-semibold">{username}</h3>
-          <p className="text-sm text-gray-500">{title}</p>
+          <h3 className="text-lg font-semibold">{review.username}</h3>
+          <p className="text-sm text-gray-500">{review.restaurantName}</p>
         </div>
         <div className="flex items-center">
           <Star className="w-5 h-5 text-yellow-400 fill-current" />
-          <span className="ml-1 font-medium">{averageRating.toFixed(1)}</span>
+          <span className="ml-1 font-medium">{averageRating}</span>
         </div>
       </CardHeader>
       <CardContent>
         {isExpanded && (
           <div className="mb-4">
-            <p className="text-gray-700 mb-4">{reviewText}</p>
+            <p className="text-gray-700 mb-4">{review.reviewText}</p>
             <div className="grid grid-cols-2 gap-4">
               {ratings.map((rating) => (
                 <div key={rating.category} className="flex items-center">

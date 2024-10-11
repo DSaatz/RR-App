@@ -1,25 +1,18 @@
 import sys
 sys.path.append('../')
-from Backend.Data.Helpers.Readers.getUserByMail import getUserByMail
 from Backend.Data.Helpers import connector
 
-def getReviewsByUser(email):
-    user = getUserByMail(email)
-    if user is None:
-        return None
-    uid = user['userID']
-
+def getReviewsUsername(username):
     conn = connector.create_connection()
     if conn is None:
         return None
-    
     try:
         cur = conn.cursor()
         
         cur.execute('''
-            SELECT * WHERE userID = 
-            (SELECT userID FROM users WHERE email = %s)
-        ''', (uid,))
+            SELECT * FROM reviews WHERE userID = 
+            (SELECT userID FROM users WHERE username = %s)
+        ''', (username,))
         
         result = cur.fetchall()
         
@@ -39,7 +32,8 @@ def getReviewsByUser(email):
                 "reviewDate": str(row[9]),  # Convert date to string
                 "score": float(row[10]),  # Convert Decimal to float
                 "reviewText": row[11],
-                "images": row[12]  # Add images if present
+                "images": row[12],  # Add images if present
+                "username": username
             })
         
         return reviews
