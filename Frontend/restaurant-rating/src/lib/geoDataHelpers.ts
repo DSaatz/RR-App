@@ -1,3 +1,5 @@
+import useGeolocation from '@/hooks/useGeolocation'; 
+
 export const distanceCalculation = (coords1: [number, number], coords2: [number, number]): number => {
   const [lat1, lon1] = coords1;
   const [lat2, lon2] = coords2;
@@ -32,3 +34,21 @@ export const getCoordinatesFromPlaceName = async (placeName: string): Promise<[n
     throw error;
   }
 };
+
+//NOTE: This function is not used in the current implementation and may contain bugs
+export const getDistanceBetweenUserAndRestaurant = async (restaurantName: string): Promise<number> => {
+  try {
+    const userLocation = useGeolocation();
+    const restaurantLocation = await getCoordinatesFromPlaceName(restaurantName);
+    const latitudeUser = userLocation.latitude;
+    const longitudeUser = userLocation.longitude;
+    const latitudeRestaurant = restaurantLocation[0];
+    const longitudeRestaurant = restaurantLocation[1];
+    const distance = distanceCalculation([latitudeUser, longitudeUser], [latitudeRestaurant, longitudeRestaurant]);
+    return distance;
+  
+  } catch (error) {
+    console.error('Error fetching distance:', error);
+    throw error;
+  }
+}
