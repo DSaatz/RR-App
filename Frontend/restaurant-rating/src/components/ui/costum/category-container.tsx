@@ -32,7 +32,7 @@ export default function CategoryContainer({ title, restaurants, categorySlug }: 
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4">
           {restaurants.slice(0, 5).map((restaurant) => (
             <RestaurantCard
-              key={restaurant.id}
+              id={restaurant.id}
               name={restaurant.name}
               rating={restaurant.avgRating}
               distance={1.5} //Dummy distance since distance fetching not implemented as of rn
