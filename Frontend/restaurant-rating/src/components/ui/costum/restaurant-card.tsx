@@ -1,28 +1,24 @@
-import { Star, MapPin } from 'lucide-react'
+import { Star } from "lucide-react"
 import { Card, CardContent } from "@/components/ui/card"
-import { Separator } from "@/components/ui/separator"
 
 interface RestaurantCardProps {
-  name: string
-  rating: number
-  distance: number
+  id: string;
+  name: string;
+  rating: number;
+  distance: number;
 }
 
-export default function RestaurantCard({ name, rating, distance }: RestaurantCardProps) {
+export default function RestaurantCard({ id, name, rating, distance }: RestaurantCardProps) {
   return (
-    <Card className="w-full max-w-md hover:shadow-lg transition-shadow duration-300">
+    <Card id={id} className="overflow-hidden">
       <CardContent className="p-4">
+        <h3 className="text-lg font-semibold mb-2">{name}</h3>
         <div className="flex items-center justify-between">
-          <h3 className="text-lg font-semibold text-gray-800 truncate">{name}</h3>
-          <div className="flex items-center space-x-2">
+          <div className="flex items-center">
             <Star className="w-5 h-5 text-yellow-400 fill-current" />
-            <span className="font-medium text-gray-700">{rating.toFixed(1)}</span>
+            <span className="ml-1 text-sm font-medium">{rating.toFixed(1)}</span>
           </div>
-        </div>
-        <Separator className="my-3" />
-        <div className="flex items-center text-sm text-gray-500">
-          <MapPin className="w-4 h-4 mr-1 text-green-600" />
-          <span>{distance.toFixed(1)} km away</span>
+          <span className="text-sm text-gray-500">{distance.toFixed(1)} km</span>
         </div>
       </CardContent>
     </Card>
