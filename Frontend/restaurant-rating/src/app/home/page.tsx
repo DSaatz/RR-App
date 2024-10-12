@@ -17,7 +17,7 @@ export default function HomePage() {
   const { location, error } = useGeolocation();
   const [mapCenter, setMapCenter] = useState<[number, number]>([51.505, -0.09]); // Default to London
 
-//FIX: check why search is not working
+//FIX: check why search is not working --> compare to implemtation from older commit where it was working
   const handleSearch = (query: string) => {
     console.log("Searching for:", query);
     if (typeof window !== 'undefined' && (window as any).handleMapSearch) {
