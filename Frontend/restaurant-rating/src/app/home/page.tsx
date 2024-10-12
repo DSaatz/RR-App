@@ -5,47 +5,46 @@ import StandardLayout from "@/components/ui/costum/standard-layout";
 import SearchBar from "@/components/ui/costum/search-bar";
 import UnderConstructionCard from "@/components/ui/costum/under-construction-card";
 import CategoryContainer from "@/components/ui/costum/category-container";
-import { getReviewsAsRestaurantArray } from '@/lib/reviewHelpers';  // Import your function
+import { getReviewsAsRestaurantArray } from '@/lib/reviewHelpers';
 import { Restaurant } from '@/models/Restaurant';
 import { getAllReviews, getAllReviewsNewest, getAllReviewsSortedByTrending } from '@/lib/APIHelpers';
-
+import useGeolocation from '@/hooks/useGeolocation';
 
 export default function HomePage() {
   const [topRatedRestaurants, setTopRatedRestaurants] = useState<Restaurant[]>([]);
   const [newestRestaurants, setNewestRestaurants] = useState<Restaurant[]>([]);
   const [nearbyRestaurants, setNearbyRestaurants] = useState<Restaurant[]>([]);
-
+  const { location, error } = useGeolocation();
+  
   const handleSearch = (query: string) => {
     // Implement search logic here
     console.log("Searching for:", query);
   };
 
-  // Fetch reviews and categorize them for each section
   useEffect(() => {
-    // Example fetching for top-rated restaurants
     async function fetchTopRated() {
-      const restaurants = await getReviewsAsRestaurantArray(getAllReviewsSortedByTrending);  // Use your API function
-      setTopRatedRestaurants(restaurants);  // Update the state with fetched data
+      const restaurants = await getReviewsAsRestaurantArray(getAllReviewsSortedByTrending);
+      setTopRatedRestaurants(restaurants);
     }
 
-    // Example fetching for newest restaurants
     async function fetchNewest() {
-      const restaurants = await getReviewsAsRestaurantArray(getAllReviewsNewest);  // Use your API function
-      setNewestRestaurants(restaurants);  // Update the state with fetched data
+      const restaurants = await getReviewsAsRestaurantArray(getAllReviewsNewest);
+      setNewestRestaurants(restaurants);
     }
 
-    // Example fetching for nearby restaurants
-    //TODO Implement nearby restaurants fetching
     async function fetchNearby() {
-      const restaurants = await getReviewsAsRestaurantArray(getAllReviews);  // Use your API function
-      setNearbyRestaurants(restaurants);  // Update the state with fetched data
+      if (location.latitude && location.longitude) {
+        // Here you would typically pass the location to a function that fetches nearby restaurants
+        // For now, we'll use getAllReviews as a placeholder
+        const restaurants = await getReviewsAsRestaurantArray(getAllReviews);
+        setNearbyRestaurants(restaurants);
+      }
     }
 
-    // Call the functions to fetch the data
     fetchTopRated();
     fetchNewest();
     fetchNearby();
-  }, []);
+  }, [location]); // Add location as a dependency
 
   return (
     <StandardLayout pageTitle="Discover Great Restaurants">
