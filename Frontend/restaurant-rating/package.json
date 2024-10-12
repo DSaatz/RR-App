@@ -32,6 +32,7 @@
     "clsx": "^2.1.1",
     "firebase": "^10.14.0",
     "leaflet": "^1.9.4",
+    "leaflet-color-markers": "^0.1.0",
     "lucide-react": "^0.447.0",
     "next": "14.2.14",
     "next-themes": "^0.3.0",

@@ -5,6 +5,23 @@ import { MapContainer, TileLayer, Marker, Popup, useMap } from 'react-leaflet'
 import L from 'leaflet'
 import 'leaflet/dist/leaflet.css'
 
+// Fix the marker icon issue by pointing to the CDN URLs
+delete (L.Icon.Default.prototype as any)._getIconUrl
+
+L.Icon.Default.mergeOptions({
+  iconRetinaUrl: 'https://unpkg.com/leaflet@1.7.1/dist/images/marker-icon-2x.png',
+  iconUrl: 'https://unpkg.com/leaflet@1.7.1/dist/images/marker-icon.png',
+  shadowUrl: 'https://unpkg.com/leaflet@1.7.1/dist/images/marker-shadow.png',
+})
+
+const redIcon = new L.Icon({
+    iconUrl: 'https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-red.png',
+    iconSize: [25, 41],
+    iconAnchor: [12, 41],
+    popupAnchor: [1, -34],
+    shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-shadow.png',
+  })
+
 interface RestaurantMapProps {
   initialCenter: [number, number]
 }
@@ -16,13 +33,6 @@ function ChangeView({ center }: { center: [number, number] }) {
   }, [center, map])
   return null
 }
-
-const customIcon = new L.Icon({
-  iconUrl: '/marker-icon.png',
-  iconSize: [25, 41],
-  iconAnchor: [12, 41],
-  popupAnchor: [1, -34],
-})
 
 export default function RestaurantMap({ initialCenter }: RestaurantMapProps) {
   const [center, setCenter] = useState<[number, number]>(initialCenter)
@@ -60,7 +70,7 @@ export default function RestaurantMap({ initialCenter }: RestaurantMapProps) {
         />
         <ChangeView center={center} />
         {markerPosition && (
-          <Marker position={markerPosition} icon={customIcon}>
+          <Marker position={markerPosition} icon={redIcon}>
             <Popup>{placeName}</Popup>
           </Marker>
         )}
