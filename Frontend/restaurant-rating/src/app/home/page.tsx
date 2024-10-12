@@ -3,8 +3,8 @@
 import { useState, useEffect } from 'react';
 import StandardLayout from "@/components/ui/costum/standard-layout";
 import SearchBar from "@/components/ui/costum/search-bar";
-import UnderConstructionCard from "@/components/ui/costum/under-construction-card";
 import CategoryContainer from "@/components/ui/costum/category-container";
+import RestaurantMap from "@/components/ui/costum/restaurant-map";
 import { getReviewsAsRestaurantArray } from '@/lib/reviewHelpers';
 import { Restaurant } from '@/models/Restaurant';
 import { getAllReviews, getAllReviewsNewest, getAllReviewsSortedByTrending } from '@/lib/APIHelpers';
@@ -15,10 +15,13 @@ export default function HomePage() {
   const [newestRestaurants, setNewestRestaurants] = useState<Restaurant[]>([]);
   const [nearbyRestaurants, setNearbyRestaurants] = useState<Restaurant[]>([]);
   const { location, error } = useGeolocation();
-  
+  const [mapCenter, setMapCenter] = useState<[number, number]>([51.505, -0.09]); // Default to London
+
   const handleSearch = (query: string) => {
-    // Implement search logic here
     console.log("Searching for:", query);
+    if (typeof window !== 'undefined' && (window as any).handleMapSearch) {
+      (window as any).handleMapSearch(query);
+    }
   };
 
   useEffect(() => {
@@ -34,27 +37,26 @@ export default function HomePage() {
 
     async function fetchNearby() {
       if (location.latitude && location.longitude) {
-        // Here you would typically pass the location to a function that fetches nearby restaurants
-        // For now, we'll use getAllReviews as a placeholder
         const restaurants = await getReviewsAsRestaurantArray(getAllReviews);
         setNearbyRestaurants(restaurants);
+        setMapCenter([location.latitude, location.longitude]);
+        console.log("Found location:", location);
       }
     }
 
     fetchTopRated();
     fetchNewest();
     fetchNearby();
-  }, [location]); // Add location as a dependency
+  }, [location]);
 
   return (
     <StandardLayout pageTitle="Discover Great Restaurants">
       <div className="space-y-8">
         <SearchBar onSearch={handleSearch} placeholder="Search for restaurants, cuisines, or locations..." />
         
-        <UnderConstructionCard 
-          title="Interactive Restaurant Map" 
-          description="We're working on an interactive map to help you discover restaurants in your area. Stay tuned!"
-        />
+        <div className="h-[400px] w-full">
+          <RestaurantMap initialCenter={mapCenter} />
+        </div>
 
         <CategoryContainer
           title="Top Rated Restaurants"
