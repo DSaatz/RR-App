@@ -19,7 +19,7 @@ from Backend.Data.Helpers.Readers.getUserByMail import getUserByMail
 from Backend.Data.Helpers.Readers.getReviewsByUser import getReviewsByUser
 from dotenv import load_dotenv
 from Backend.Data.Helpers.Readers.getReviewsUsername import getReviewsUsername
-from Backend.Data.Helpers.Operations.userOperations import changeUsername, changePassword
+from Backend.Data.Helpers.Operations.userOperations import changeUsername, changePassword, deleteUser
 
 load_dotenv()
 
@@ -64,6 +64,9 @@ class UsernameUpdateRequest(BaseModel):
 class PasswordUpdateRequest(BaseModel):
     email: str
     new_password: str
+
+class deleteUserRequest(BaseModel):
+    email: str
 
 @app.post("/registerUser")
 async def register_user(user: UserRegister):
@@ -234,3 +237,13 @@ async def update_password(data: PasswordUpdateRequest):
     else:
         logger.error(f"Error updating password for user: {data.email}")
         raise HTTPException(status_code=500, detail="Error updating password.")
+    
+@app.post("/deleteUser")
+async def delete_user(data: deleteUserRequest):
+    logger.info(f"Attempting to delete user: {data.email}")
+    if deleteUser(data.email):
+        logger.info(f"User deleted successfully: {data.email}")
+        return JSONResponse(status_code=200, content={"message": "User deleted successfully."})
+    else:
+        logger.error(f"Error deleting user: {data.email}")
+        raise HTTPException(status_code=500, detail="Error deleting user.")

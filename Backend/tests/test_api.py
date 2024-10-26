@@ -99,10 +99,29 @@ def test_change_password():
     print(f"Response content: {response.json()}")
     assert response.status_code == 200
 
+def test_delete_user():
+    #register a new user to be deleted
+    url = f"{BASE_URL}/registerUser"
+    payload = {
+        "username": "deleteuser",
+        "email": "deleteuser@example.com",
+        "password": "deletepassword69"
+    }
+    response = requests.post(url, json=payload)
+    email = "deleteuser@example.com"
+    url = f"{BASE_URL}/deleteUser/"
+    payload = {
+        "email": email
+    }
+    response = requests.post(url, json=payload)
+    print(f"Delete User Response: {response.status_code}")
+    print(f"Response content: {response.json()}")
+
+
 
 if __name__ == "__main__":
     print("Starting API tests...")
-    test_register_user()
+    #test_register_user()
     #test_upload_review()
     #test_get_all_restaurants()
     #test_get_specific_restaurant()
@@ -111,5 +130,6 @@ if __name__ == "__main__":
     #test_get_reviews_by_user_username()
     #test_change_username()
     #test_change_password()
+    test_delete_user()
 
     print("All tests completed!")
