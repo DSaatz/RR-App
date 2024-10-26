@@ -204,3 +204,73 @@ export const getReviewsByUsername = async (username: string) => {
     }
   }
 }
+
+export const changeUsername = async (email: string, newUsername: string) => {
+  const url = `${BASE_URL}/updateUsername`;
+  const payload = {
+    email: email,
+    new_username: newUsername // Note: This should match the API's expected field name
+  };
+
+  try {
+    console.log('Sending payload:', payload);
+    const response = await axios.post(url, payload);
+    console.log('Response:', response);
+    return response;
+  } catch (error) {
+    if (axios.isAxiosError(error)) {
+      console.error('Axios error:', error.response?.data);
+      return error.response;
+    } else {
+      console.error('Unexpected error:', error);
+      throw error;
+    }
+  }
+}
+
+// Similarly, update changePassword and deleteUser functions
+
+export const changePassword = async (email: string, newPassword: string) => {
+  const url = `${BASE_URL}/updatePassword`;
+  const payload = {
+    email: email,
+    new_password: newPassword
+  };
+
+  try {
+    console.log('Sending payload:', payload);
+    const response = await axios.post(url, payload);
+    console.log('Response:', response);
+    return response;
+  } catch (error) {
+    if (axios.isAxiosError(error)) {
+      console.error('Axios error:', error.response?.data);
+      return error.response;
+    } else {
+      console.error('Unexpected error:', error);
+      throw error;
+    }
+  }
+}
+
+export const deleteUser = async (email: string) => {
+  const url = `${BASE_URL}/deleteUser`;
+  const payload = {
+    email: email
+  };
+
+  try {
+    console.log('Sending payload:', payload);
+    const response = await axios.post(url, payload);
+    console.log('Response:', response);
+    return response;
+  } catch (error) {
+    if (axios.isAxiosError(error)) {
+      console.error('Axios error:', error.response?.data);
+      return error.response;
+    } else {
+      console.error('Unexpected error:', error);
+      throw error;
+    }
+  }
+}

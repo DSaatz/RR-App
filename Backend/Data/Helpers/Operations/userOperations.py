@@ -69,6 +69,7 @@ def deleteUser(userEmail):
             DELETE FROM users
             WHERE userid = %s
         ''', (userInfo["userID"],))
+        conn.commit()
         return True
     #TODO: eventually check if fk constraints are violated and won't delete the user
     except Exception as e:
