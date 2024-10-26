@@ -19,6 +19,7 @@ from Backend.Data.Helpers.Readers.getUserByMail import getUserByMail
 from Backend.Data.Helpers.Readers.getReviewsByUser import getReviewsByUser
 from dotenv import load_dotenv
 from Backend.Data.Helpers.Readers.getReviewsUsername import getReviewsUsername
+from Backend.Data.Helpers.Operations.userOperations import changeUsername, changePassword
 
 load_dotenv()
 
@@ -54,6 +55,15 @@ class ReviewData(BaseModel):
     location: int
     priceToValue: int
     reviewText: str
+
+
+class UsernameUpdateRequest(BaseModel):
+    email: str
+    new_username: str
+
+class PasswordUpdateRequest(BaseModel):
+    email: str
+    new_password: str
 
 @app.post("/registerUser")
 async def register_user(user: UserRegister):
@@ -204,3 +214,23 @@ async def get_reviews_username(username: str):
         return JSONResponse(status_code=500, content={"message": "Error retrieving data"})
     logger.info(f"Successfully retrieved reviews for user: {username}.")
     return JSONResponse(content=reviews)
+
+@app.post("/updateUsername")
+async def update_username(data: UsernameUpdateRequest):
+    logger.info(f"Updating username for user: {data.email}")
+    if changeUsername(data.email, data.new_username):
+        logger.info(f"Username updated successfully for user: {data.email}.")
+        return JSONResponse(status_code=200, content={"message": "Username updated successfully."})
+    else:
+        logger.error(f"Error updating username for user: {data.email}.")
+        return JSONResponse(status_code=500, content={"message": "Error updating username."})
+    
+@app.post("/updatePassword")
+async def update_password(data: PasswordUpdateRequest):
+    logger.info(f"Attempting to update password for user: {data.email}")
+    if changePassword(data.email, data.new_password):
+        logger.info(f"Password updated successfully for user: {data.email}")
+        return JSONResponse(status_code=200, content={"message": "Password updated successfully."})
+    else:
+        logger.error(f"Error updating password for user: {data.email}")
+        raise HTTPException(status_code=500, detail="Error updating password.")

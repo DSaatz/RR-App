@@ -8,9 +8,9 @@ BASE_URL = "http://localhost:8000"  # Adjust if your server runs on a different 
 def test_register_user():
     url = f"{BASE_URL}/registerUser"
     payload = {
-        "username": "testuser",
-        "email": "testuser@example.com",
-        "password": "testpassword123"
+        "username": "testuser2",
+        "email": "testuser2@example.com",
+        "password": "testpassword69"
     }
     response = requests.post(url, json=payload)
     print(f"Register User Response: {response.status_code}")
@@ -77,14 +77,39 @@ def test_get_reviews_by_user_username():
     print(f"Response content: {response.json()}")
     assert response.status_code == 200
 
+def test_change_username():
+    payload = {
+        "email": "testuser2@example.com",
+        "new_username": "testuser2New"
+    }
+    url = f"{BASE_URL}/updateUsername"
+    response = requests.post(url, json=payload)
+    print(f"Change Username Response: {response.status_code}")
+    print(f"Response content: {response.json()}")
+    assert response.status_code == 200
+
+def test_change_password():
+    payload = {
+        "email": "testuser2@example.com",
+        "new_password": "newpassword123"
+    }
+    url = f"{BASE_URL}/updatePassword"
+    response = requests.post(url, json=payload)
+    print(f"Change Password Response: {response.status_code}")
+    print(f"Response content: {response.json()}")
+    assert response.status_code == 200
+
+
 if __name__ == "__main__":
     print("Starting API tests...")
-    #test_register_user()
+    test_register_user()
     #test_upload_review()
     #test_get_all_restaurants()
     #test_get_specific_restaurant()
     #test_get_reviews()
     #test_get_user_by_mail()
-    test_get_reviews_by_user_username()
+    #test_get_reviews_by_user_username()
+    #test_change_username()
+    #test_change_password()
 
     print("All tests completed!")
