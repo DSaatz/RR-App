@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import { useState, useEffect, useRef } from "react"
 import { useRouter } from 'next/navigation'
 import { Eye, EyeOff } from "lucide-react"
 import { Button } from "@/components/ui/button"
@@ -9,7 +9,7 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 
-import { login } from "@/lib/authHelpers"
+import { login, sendPasswordResetEmail } from "@/lib/authHelpers"
 import { auth } from "@/lib/firebase"  
 import { onAuthStateChanged, User } from "firebase/auth"
 
@@ -18,9 +18,11 @@ import { registerUser } from "@/lib/APIHelpers"
 export default function AuthTabs() {
   const [showPassword, setShowPassword] = useState(false)
   const [loginError, setLoginError] = useState<string | null>(null)
+  const [resetEmailSent, setResetEmailSent] = useState(false)
   const [user, setUser] = useState<User | null>(null)
   const [passwordMatch, setPasswordMatch] = useState(true)
   const router = useRouter()
+  const loginEmailRef = useRef<HTMLInputElement>(null)
 
   const togglePasswordVisibility = () => setShowPassword(!showPassword)
 
@@ -38,6 +40,24 @@ export default function AuthTabs() {
     } catch (error) {
       console.error("Login failed:", error)
       setLoginError("Invalid username or password")
+    }
+  }
+
+  const handleForgotPassword = async () => {
+    const email = loginEmailRef.current?.value
+
+    if (!email) {
+      setLoginError("Please enter your email address")
+      return
+    }
+
+    try {
+      await sendPasswordResetEmail(email)
+      setResetEmailSent(true)
+      setLoginError(null)
+    } catch (error) {
+      console.error("Password reset failed:", error)
+      setLoginError("Failed to send password reset email. Please try again.")
     }
   }
 
@@ -121,7 +141,13 @@ export default function AuthTabs() {
             <form onSubmit={handleLoginSubmit} className="space-y-4">
               <div className="space-y-2">
                 <Label htmlFor="loginEmail">Email</Label>
-                <Input id="loginEmail" placeholder="Enter your email" className="transition-all hover:border-green-500 focus:border-green-500 focus:ring-green-500" required />
+                <Input 
+                  id="loginEmail" 
+                  ref={loginEmailRef}
+                  placeholder="Enter your email" 
+                  className="transition-all hover:border-green-500 focus:border-green-500 focus:ring-green-500" 
+                  required 
+                />
               </div>
               <div className="space-y-2">
                 <Label htmlFor="loginPassword">Password</Label>
@@ -143,8 +169,18 @@ export default function AuthTabs() {
                 </div>
               </div>
               {loginError && <p className="text-sm text-red-500">{loginError}</p>}
+              {resetEmailSent && <p className="text-sm text-green-500">Password reset email sent. Please check your inbox.</p>}
               <Button type="submit" className="w-full bg-green-500 hover:bg-green-600 transition-colors">Login</Button>
             </form>
+            <div className="text-center">
+              <Button
+                variant="link"
+                onClick={handleForgotPassword}
+                className="text-sm text-green-600 hover:text-green-700"
+              >
+                Forgot Password?
+              </Button>
+            </div>
           </CardContent>
         </Card>
       </TabsContent>

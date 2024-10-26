@@ -1,5 +1,5 @@
 // /lib/authHelpers.ts
-import { signInWithEmailAndPassword, signOut } from "firebase/auth";
+import { signInWithEmailAndPassword, signOut, sendPasswordResetEmail as firebaseSendPasswordResetEmail } from "firebase/auth";
 import { auth } from "./firebase";
 
 export const login = async (email: string, password: string) => {
@@ -22,3 +22,12 @@ export const logout = async () => {
     throw error;
   }
 };
+
+export const sendPasswordResetEmail = async (email: string) => {
+  try {
+    await firebaseSendPasswordResetEmail(auth, email)
+  } catch (error) {
+    console.error('Error sending password reset email:', error)
+    throw error
+  }
+}
