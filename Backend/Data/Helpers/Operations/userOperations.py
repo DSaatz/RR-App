@@ -75,3 +75,32 @@ def deleteUser(userEmail):
     except Exception as e:
         print(f'Error deleting user: {e}')
         return False
+
+def updateProfilePicture(userEmail, profilePictureLink):
+    conn = connector.create_connection()
+    if conn is None:
+        print("Failed to establish database connection.")
+        return False
+    
+    userID = getUserByMail(userEmail)["userID"]
+
+    try:
+        cur = conn.cursor()
+
+        # Update the user's profile picture
+        cur.execute('''
+            UPDATE users
+            SET profilepicture = %s
+            WHERE userID = %s
+        ''', (profilePictureLink, userID))
+
+        # Commit the changes
+        conn.commit()
+        print("Profile picture added successfully.")
+        return True
+    except Exception as e:
+        print(f"Error adding profile picture: {e}")
+        conn.rollback()  # Rollback in case of error
+    finally:
+        cur.close()
+        conn.close()

@@ -6,16 +6,20 @@ import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
-import { changeUsername, changePassword, deleteUser } from '@/lib/APIHelpers'
+import { changeUsername, changePassword, deleteUser, updateProfilePicture, getUserProfilePictureUrl } from '@/lib/APIHelpers'
 import { useToast } from "@/hooks/use-toast"
 import { getCurrentUser } from '@/lib/userHelpers'
 import { useRouter } from 'next/navigation'
+import { FileUpload } from '@/components/ui/costum/FileUpload'
+import { uploadProfilePicture } from '@/lib/firebaseHelpers'
 
 export default function AccountSettings() {
   const [newUsername, setNewUsername] = useState('')
   const [newPassword, setNewPassword] = useState('')
   const [confirmPassword, setConfirmPassword] = useState('')
   const [currentUserEmail, setCurrentUserEmail] = useState<string | null>(null)
+  const [profilePicture, setProfilePicture] = useState<string | null>(null)
+  const [isUploading, setIsUploading] = useState(false)
   const { toast } = useToast()
   const router = useRouter()
 
@@ -25,6 +29,7 @@ export default function AccountSettings() {
         const user = await getCurrentUser()
         if (user && user.email) {
           setCurrentUserEmail(user.email)
+          fetchProfilePicture(user.email)
         } else {
           toast({ title: "Error", description: "Unable to fetch user information", variant: "destructive" })
         }
@@ -37,15 +42,24 @@ export default function AccountSettings() {
     fetchCurrentUser()
   }, [toast])
 
+  const fetchProfilePicture = async (email: string) => {
+    try {
+      const profilePictureUrl = await getUserProfilePictureUrl(email)
+      setProfilePicture(profilePictureUrl)
+      console.log('Profile picture URL:', profilePictureUrl)
+    } catch (error) {
+      console.error('Error fetching profile picture:', error)
+      toast({ title: "Error", description: "Failed to fetch profile picture", variant: "destructive" })
+    }
+  }
+
   const handleUsernameChange = async () => {
     if (!currentUserEmail) {
       toast({ title: "Error", description: "User not logged in", variant: "destructive" })
       return
     }
     try {
-      console.log('Attempting to change username:', { email: currentUserEmail, newUsername })
       const response = await changeUsername(currentUserEmail, newUsername)
-      console.log('Change username response:', response)
       if (response && response.status === 200) {
         toast({ title: "Success", description: "Username updated successfully" })
         setNewUsername('')
@@ -70,9 +84,7 @@ export default function AccountSettings() {
       return
     }
     try {
-      console.log('Attempting to change password:', { email: currentUserEmail })
       const response = await changePassword(currentUserEmail, newPassword)
-      console.log('Change password response:', response)
       if (response && response.status === 200) {
         toast({ title: "Success", description: "Password updated successfully" })
         setNewPassword('')
@@ -95,12 +107,10 @@ export default function AccountSettings() {
     }
     if (confirm("Are you sure you want to delete your account? This action cannot be undone.")) {
       try {
-        console.log('Attempting to delete account:', { email: currentUserEmail })
         const response = await deleteUser(currentUserEmail)
-        console.log('Delete account response:', response)
         if (response && response.status === 200) {
           toast({ title: "Success", description: "Account deleted successfully" })
-          router.push('/') //TODO: update s.t. it actually redirects to login page not home
+          router.push('/login')
         } else {
           toast({ title: "Error", description: "Failed to delete account", variant: "destructive" })
         }
@@ -111,6 +121,28 @@ export default function AccountSettings() {
     }
   }
 
+  const handleFileSelect = async (file: File) => {
+    setIsUploading(true)
+    try {
+      const downloadURL = await uploadProfilePicture(file)
+      
+      if (currentUserEmail) {
+        const response = await updateProfilePicture(currentUserEmail, downloadURL)
+        if (response && response.status === 200) {
+          setProfilePicture(downloadURL)
+          toast({ title: "Success", description: "Profile picture updated successfully" })
+        } else {
+          toast({ title: "Error", description: "Failed to update profile picture in the database", variant: "destructive" })
+        }
+      }
+    } catch (error) {
+      console.error('Error uploading file:', error)
+      toast({ title: "Error", description: "Failed to upload profile picture", variant: "destructive" })
+    } finally {
+      setIsUploading(false)
+    }
+  }
+
   return (
     <Card className="w-full max-w-2xl mx-auto">
       <CardHeader>
@@ -118,12 +150,13 @@ export default function AccountSettings() {
         <CardDescription>Manage your account settings and preferences.</CardDescription>
       </CardHeader>
       <CardContent className="space-y-6">
-        <div className="flex items-center space-x-4">
-          <Avatar className="w-20 h-20">
-            <AvatarImage src="/placeholder-avatar.jpg" alt="User avatar" />
+        <div className="flex flex-col items-center space-y-4">
+          <Avatar className="w-32 h-32">
+            <AvatarImage src={profilePicture || "/placeholder-avatar.jpg"} alt="User avatar" />
             <AvatarFallback>UN</AvatarFallback>
           </Avatar>
-          <Button variant="outline" className="bg-green-50 text-green-700 hover:bg-green-100">Change Avatar</Button>
+          <FileUpload onFileSelect={handleFileSelect} />
+          {isUploading && <p className="text-sm text-green-600">Uploading...</p>}
         </div>
         <div className="space-y-2">
           <Label htmlFor="username" className="text-sm font-medium text-green-700">Change Username</Label>

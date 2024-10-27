@@ -274,3 +274,36 @@ export const deleteUser = async (email: string) => {
     }
   }
 }
+
+export const updateProfilePicture = async (email: string, profilePictureLink: string) => {
+  const url = `${BASE_URL}/updateProfilePicture`;
+  const payload = {
+    email: email,
+    profilePictureLink: profilePictureLink
+  };
+
+  try {
+    const response = await axios.post(url, payload);
+    return response;
+  } catch (error) {
+    console.error('Error updating profile picture:', error);
+    throw error;
+  }
+};
+
+export const getUserProfilePictureUrl = async (email: string): Promise<string | null> => {
+  const url = `${BASE_URL}/getUserProfilePicture/${encodeURIComponent(email)}`;
+
+  try {
+    const response = await axios.get(url);
+    if (response.status === 200 && response.data) {
+      return response.data;
+    } else {
+      console.error('No profile picture found or unexpected response structure');
+      return null;
+    }
+  } catch (error) {
+    console.error('Error fetching user profile picture URL:', error);
+    return null;
+  }
+}

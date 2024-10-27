@@ -19,7 +19,8 @@ from Backend.Data.Helpers.Readers.getUserByMail import getUserByMail
 from Backend.Data.Helpers.Readers.getReviewsByUser import getReviewsByUser
 from dotenv import load_dotenv
 from Backend.Data.Helpers.Readers.getReviewsUsername import getReviewsUsername
-from Backend.Data.Helpers.Operations.userOperations import changeUsername, changePassword, deleteUser
+from Backend.Data.Helpers.Operations.userOperations import changeUsername, changePassword, deleteUser, updateProfilePicture
+from Backend.Data.Helpers.Readers.getUserProfilePicture import getUserProfilePicture
 
 load_dotenv()
 
@@ -67,6 +68,10 @@ class PasswordUpdateRequest(BaseModel):
 
 class deleteUserRequest(BaseModel):
     email: str
+
+class updateProfilePictureRequest(BaseModel):
+    email: str
+    profilePictureLink: str
 
 @app.post("/registerUser")
 async def register_user(user: UserRegister):
@@ -247,3 +252,24 @@ async def delete_user(data: deleteUserRequest):
     else:
         logger.error(f"Error deleting user: {data.email}")
         raise HTTPException(status_code=500, detail="Error deleting user.")
+    
+@app.post("/updateProfilePicture")
+async def update_profile_picture(data: updateProfilePictureRequest):
+    logger.info(f"Attempting to update profile picture for user: {data.email}")
+    if updateProfilePicture(data.email, data.profilePictureLink):
+        logger.info(f"Profile picture updated successfully for user: {data.email}")
+        return JSONResponse(status_code=200, content={"message": "Profile picture updated successfully."})
+    else:
+        logger.error(f"Error updating profile picture for user: {data.email}")
+        raise HTTPException(status_code=500, detail="Error updating profile picture.")
+    
+@app.get("/getUserProfilePicture/{email}")
+async def get_user_profile_picture(email: str):
+    decoded_email = email  # The URL-encoded email is automatically decoded by FastAPI
+    logger.info(f"Fetching profile picture for user: {decoded_email}")
+    profile_picture = getUserProfilePicture(decoded_email)
+    if profile_picture is None:
+        logger.error(f"Error retrieving profile picture for user: {decoded_email}.")
+        return JSONResponse(status_code=500, content={"message": "Error retrieving data"})
+    logger.info(f"Successfully retrieved profile picture for user: {decoded_email}.")
+    return JSONResponse(status_code=200, content=profile_picture)
