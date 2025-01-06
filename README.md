@@ -34,4 +34,4 @@ Welcome to the **Restaurant Rating Web App**! This project was my first foray in
 
 This app is currently a Work in Progress (WIP). Development is temporarily paused as I've shifted my focus to learning more complete and industry-standard tech stacks.
 
-Feel free to reach out with any questions, suggestions, or collaborations. 🍽️
+Feel free to reach out with any questions and suggestions 🍽️
